@@ -1,0 +1,17 @@
+export const COLORS = {
+  WHITE: '#FFFFFF',
+  GREEN_SEA: '#16a085',
+  ALIZARIAN: '#e74c3c',
+  WATERMELON: '#ff4757',
+  CLEAR_CHILL: '#1e90ff',
+  ORANGE: '#ffa502',
+  STEEL_PINK: '#be2edd',
+  GREENLAND: '#22a6b3',
+  IMPERIAL: '#222f3e',
+  SHADOWED: '#4b4b4b',
+  BALTIC_SEA: '#3d3d3d',
+  BLACK_PEARL: '#1e272e',
+  BLACK_PERL_RGB: 'rgb(30, 39, 46)',
+  DARK_GRAY_RGB: 'rgba(32, 32, 36, 1))',
+  UNDERLAY: 'rgba(0, 0, 0, 0.2);',
+};
