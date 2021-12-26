@@ -6,6 +6,8 @@
     "android": "react-native run-android",
     "ios": "react-native run-ios",
     "start": "react-native start",
+    "start-reset-cache": "react-native start --reset-cache",
+    "build": "npx jetify && cd android && gradlew assembleRelease",
     "test": "jest",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx",
     "eslint": "node_modules/.bin/eslint \"src/**/*.*\"",
