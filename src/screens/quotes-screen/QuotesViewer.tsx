@@ -38,7 +38,7 @@ const TableColumns: FC = () => {
     <View style={styles.top}>
       <QuoteCell value="Name" fontWeight="700" />
       <QuoteCell value="Percent Change" align="center" />
-      <QuoteCell value="last" align="center" />
+      <QuoteCell value="Last" align="center" />
       <QuoteCell value="Highest Bid" align="flex-end" />
     </View>
   );

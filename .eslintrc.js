@@ -14,6 +14,7 @@ module.exports = {
     'react/no-direct-mutation-state': 1,
     'react/jsx-curly-brace-presence': 1,
     'react/jsx-boolean-value': 1,
+    '@typescript-eslint/ban-types': 0,
     '@typescript-eslint/explicit-module-boundary-types': 0,
     '@typescript-eslint/camelcase': 0,
     '@typescript-eslint/no-inferrable-types': 0,

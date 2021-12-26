@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { styles } from './styles';
 
-interface IProps<T = unknown> {
+interface IProps<T = object> {
   routes: IRoute[];
   routesMap: { [key: IProps['routes'][0]['key']]: ComponentType<T> };
   indicatorColor?: string;
@@ -26,9 +26,9 @@ interface IRoute {
 }
 
 export const TabView: FC<IProps> = memo(
-  ({ routes, routesMap, indicatorColor = COLORS.CLEAR_CHILL }) => {
+  ({ routes, routesMap, indicatorColor = COLORS.CLEAR_CHILL, onTabsChanged }) => {
     const { width } = useWindowDimensions();
-    const fatListPagesRef = createRef<FlatList<[string, React.ComponentType<unknown>]>>();
+    const fatListPagesRef = createRef<FlatList<[string, React.ComponentType<object>]>>();
     const fatListButtonsRef = createRef<FlatList<IRoute>>();
     const trackX = useRef(new Animated.Value(0)).current;
     const currentIndex = useRef(0);
@@ -51,10 +51,12 @@ export const TabView: FC<IProps> = memo(
       changed: Array<ViewToken>;
     }) => {
       if (viewableItems.length === 1) {
-        const nextIndex = viewableItems[0].index;
-        if (nextIndex !== null) {
-          currentIndex.current = nextIndex;
-          runTrackAnimation(nextIndex);
+        const nextRoute = viewableItems[0];
+        if (nextRoute.index !== null) {
+          const { index, key } = nextRoute;
+          currentIndex.current = index;
+          runTrackAnimation(index);
+          onTabsChanged?.({ index, key });
         }
       }
     };
@@ -68,11 +70,12 @@ export const TabView: FC<IProps> = memo(
       { viewabilityConfig, onViewableItemsChanged },
     ]);
 
-    const setPage = (index: number) => {
+    const setPage = (index: number, key: string) => {
       currentIndex.current = index;
       runTrackAnimation(index);
       fatListPagesRef.current?.scrollToIndex({ index });
       fatListButtonsRef.current?.scrollToIndex({ index });
+      onTabsChanged?.({ index, key });
     };
 
     const renderData = useMemo(() => {
@@ -94,7 +97,7 @@ export const TabView: FC<IProps> = memo(
             renderItem={({ item, index }) => (
               <TouchableHighlight
                 style={[styles.header__button, { width: width / routes.length }]}
-                onPress={() => setPage(index)}
+                onPress={() => setPage(index, item.key)}
                 underlayColor={COLORS.UNDERLAY}
               >
                 <Text style={styles.button__text}>{item.title}</Text>
@@ -134,7 +137,7 @@ export const TabView: FC<IProps> = memo(
   },
 );
 
-const Tab: FC<{ width: number; component: React.ComponentType<unknown> }> = memo(
+const Tab: FC<{ width: number; component: React.ComponentType<object> }> = memo(
   ({ component, width }) => {
     return <View style={{ width }}>{React.createElement(component)}</View>;
   },

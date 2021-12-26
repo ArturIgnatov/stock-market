@@ -6,6 +6,11 @@ class Utils {
       .toString(16)
       .slice(0, 6)}`;
   }
+
+  public getRandomId() {
+    return Math.random().toString(36).slice(2, 10);
+  }
+
   public isAnroid() {
     return Platform.OS === 'android';
   }

@@ -1,5 +1,7 @@
 export const COLORS = {
   WHITE: '#FFFFFF',
+  BLACK: '#000000',
+  TRANSPARENT: 'transparent',
   GREEN_SEA: '#16a085',
   ALIZARIAN: '#e74c3c',
   WATERMELON: '#ff4757',

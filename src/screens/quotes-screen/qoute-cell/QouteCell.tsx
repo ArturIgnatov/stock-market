@@ -13,17 +13,23 @@ interface IProps {
 export const QuoteCell: FC<IProps> = memo(
   ({ value, align, colorValue = COLORS.WHITE, fontWeight = '500' }) => {
     const scale = useRef(new Animated.Value(1)).current;
+    // IT'S PROBLEM
+    const isFirstRender = useRef(true);
 
     useEffect(() => {
-      Animated.spring(scale, {
-        toValue: 1.2,
-        useNativeDriver: true,
-      }).start(() => {
+      if (isFirstRender.current) {
+        isFirstRender.current = false;
+      } else {
         Animated.spring(scale, {
-          toValue: 1,
+          toValue: 1.2,
           useNativeDriver: true,
-        }).start();
-      });
+        }).start(() => {
+          Animated.spring(scale, {
+            toValue: 1,
+            useNativeDriver: true,
+          }).start();
+        });
+      }
     }, [scale, value]);
 
     return (

@@ -1,47 +1,81 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { PureComponent } from 'react';
 import { IPollingResponse, RequestPolling } from '@services/request-polling';
 import { View } from 'react-native';
-import { Subject } from 'rxjs';
+import { BehaviorSubject, Subject, Subscription } from 'rxjs';
 import { styles } from './styles';
 import { ITikers } from '@models/ticker';
 import { QuotesViewer } from './QuotesViewer';
 import { AppLoader } from '@components/app-loader/AppLoader';
+import { Snack } from '@components/snack-provider/Snack';
+import { AppContainerContext } from '../../main/AppContainerContext';
+import { ERoutes } from '../../main/enums';
 import Api from '@services/api';
 
-export const QuotesScreen = () => {
-  const [quotes, setQuotes] = useState<ITikers | null>(null);
-  const [error, setError] = useState(false);
+interface IState {
+  quotes: ITikers | null;
+}
 
-  const destroy$ = useRef(new Subject<void>()).current;
+export class QuotesScreen extends PureComponent<{}, IState> {
+  declare context: React.ContextType<typeof AppContainerContext>;
+  private subscription$ = new Subscription();
+  private destroy$ = new Subject<void>();
+  private pause$ = new BehaviorSubject<boolean>(true);
+  private errorMessageId = '';
+  private previousContext = this.context;
 
-  const eventHandler = useCallback(
-    (event: IPollingResponse<ITikers>) => {
-      console.log('event', event);
-      if (event.message === 'success') {
-        if (error) {
-          setError(false);
-        }
-        setQuotes(event.data);
-      } else {
-        setError(true);
-      }
-    },
-    [error],
-  );
+  constructor(props: {}) {
+    super(props);
 
-  useEffect(() => {
-    const subscription$ = RequestPolling.startPolling(
+    this.state = {
+      quotes: null,
+    };
+  }
+
+  public componentDidMount() {
+    this.subscription$ = RequestPolling.startPolling(
       () => Api.getActualTicker(),
-      destroy$,
-      3000,
-    ).subscribe(eventHandler);
+      this.destroy$,
+      5000,
+      this.pause$,
+    ).subscribe(this.eventHandler);
+  }
 
-    return () => subscription$.unsubscribe();
-  }, [destroy$, eventHandler]);
+  public componentWillUnmount() {
+    this.subscription$.unsubscribe();
+  }
 
-  return (
-    <View style={styles.container}>
-      {quotes ? <QuotesViewer {...{ quotes }} /> : <AppLoader />}
-    </View>
-  );
-};
+  public componentDidUpdate() {
+    const { currentActiveTab } = this.context;
+    if (currentActiveTab !== this.previousContext?.currentActiveTab) {
+      this.pause$.next(currentActiveTab !== ERoutes.QUETES);
+    }
+
+    this.previousContext = this.context;
+  }
+
+  public eventHandler = (event: IPollingResponse<ITikers>) => {
+    console.log('EVENT', event);
+    if (event.message === 'success') {
+      if (this.errorMessageId) {
+        Snack.remove(this.errorMessageId);
+      }
+      this.setState({ quotes: event.data });
+    } else {
+      console.log('Error', event.error);
+      const message = Snack.show({ text: 'Error', type: 'error' });
+      this.errorMessageId = message.id;
+    }
+  };
+
+  public render(): React.ReactNode {
+    const { quotes } = this.state;
+
+    return (
+      <View style={styles.container}>
+        {quotes ? <QuotesViewer {...{ quotes }} /> : <AppLoader />}
+      </View>
+    );
+  }
+}
+
+QuotesScreen.contextType = AppContainerContext;

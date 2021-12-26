@@ -8,6 +8,8 @@ import { COLORS } from '@constants/color';
 export const QuoteRow: FC<ITicker & { quoteName: string }> = memo(
   ({ quoteName, percentChange, last, highestBid }) => {
     const animation = useRef(new Animated.Value(0)).current;
+    // IT'S PROBLEM
+    const isFirstRender = useRef(true);
 
     const handleAnimation = useCallback(() => {
       Animated.spring(animation, {
@@ -22,7 +24,11 @@ export const QuoteRow: FC<ITicker & { quoteName: string }> = memo(
     }, [animation]);
 
     useEffect(() => {
-      handleAnimation();
+      if (isFirstRender.current) {
+        isFirstRender.current = false;
+      } else {
+        handleAnimation();
+      }
     }, [quoteName, percentChange, last, highestBid, handleAnimation]);
 
     const backgroundColor = animation.interpolate({
